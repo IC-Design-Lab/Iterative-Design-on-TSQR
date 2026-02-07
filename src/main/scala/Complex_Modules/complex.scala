@@ -421,7 +421,7 @@ class complex_dot_streaming (n: Int, bw: Int, mult_pd: Int, add_pd: Int) extends
   io.out_valid := ShiftRegister(io.in_valid, latency, io.in_en)
 }
 
-class cmplx_dot_iterative_v2 (n: Int, k: Int, bw: Int, mult_pd: Int, add_pd: Int) extends Module {
+class cmplx_dot_iterative (n: Int, k: Int, bw: Int, mult_pd: Int, add_pd: Int) extends Module {
   val io = IO(new Bundle {
     val vec_a = Input(Vec(n, UInt(bw.W)))
     val vec_b = Input(Vec(n, UInt(bw.W)))
@@ -435,7 +435,7 @@ class cmplx_dot_iterative_v2 (n: Int, k: Int, bw: Int, mult_pd: Int, add_pd: Int
 
   })
 
-  val num_batches = k / n
+  val num_batches = k / n //((k + (n - 1)) / n)
   val num_acc = log2Ceil(num_batches)
   val mult_latency = (mult_pd + add_pd) + (log2Ceil(n) * add_pd)
   val latency = mult_latency + (num_acc * add_pd) + (math.pow(2, (num_acc)).toInt - 1)
@@ -464,7 +464,7 @@ class cmplx_dot_iterative_v2 (n: Int, k: Int, bw: Int, mult_pd: Int, add_pd: Int
   val d2aInst = Seq.tabulate(num_acc) { i =>
     val mod = Module(new complex_acc(bw, 1 << i, add_pd, i))
     mod.io.input := 0.U
-    mod.io.counter_reset := false.B
+    mod.io.counter_reset := false.B // added for control logic
     mod.io.in_en := false.B
     mod.io.in_valid := false.B
     mod
@@ -485,18 +485,33 @@ class cmplx_dot_iterative_v2 (n: Int, k: Int, bw: Int, mult_pd: Int, add_pd: Int
     index := index + 1.U
   }
 
+  //var idx = 0
+  //for (i <- 0 until num_batches) {
+  //  complex_dot.io.vec_a := io.vec_a.slice(idx,  idx + (n - 1))
+  //  complex_dot.io.vec_b :=
+  //}
+
   when(io.in_en) {
     complex_dot.io.in_en := true.B
     complex_dot.io.in_valid := true.B
     complex_dot.io.counter_reset := io.counter_reset
   }
+  //  }.otherwise {
+  //    complex_dot.io.in_en := false.B
+  //    complex_dot.io.in_valid := false.B
+  //  }
+
+  //  when(io.in_en) {
+  //    complex_dot.io.in_en := true.B
+  //    complex_dot.io.in_valid := true.B
+  //  }
 
   for (i <- 0 until num_acc) {
 
-    when(counter >= (mult_latency + (add_pd * i) + (math.pow(2, i).toInt - 1)).U) {
+    when(counter >= (mult_latency + (add_pd * i) + (math.pow(2, i).toInt - 1)).U) { //((mult_pd + add_pd) + (i * add_pd) + (math.pow(2, (i + 1)).toInt - 2)).U) { // && counter <= ((mult_pd + 1 + add_pd + 1) + (i * add_pd) + (math.pow(2, (i + 1)).toInt - 2) + add_pd).U) {
       d2aInst(i).io.in_en := true.B
       d2aInst(i).io.in_valid := true.B
-      d2aInst(i).io.counter_reset := io.counter_reset
+      d2aInst(i).io.counter_reset := io.counter_reset // added for control logic
 
     }
     if (i == 0) {
@@ -506,10 +521,36 @@ class cmplx_dot_iterative_v2 (n: Int, k: Int, bw: Int, mult_pd: Int, add_pd: Int
     }
   }
 
-  io.out_s := d2aInst(num_acc - 1).io.output
-  io.out_real := d2aInst(num_acc - 1).io.output((bw - 1), (bw / 2))
-  io.out_imag := d2aInst(num_acc - 1).io.output(((bw / 2) - 1), 0)
+  if(num_acc >= 1) {
+    io.out_s := d2aInst(num_acc - 1).io.output
+    io.out_real := d2aInst(num_acc - 1).io.output((bw - 1), (bw / 2))
+    io.out_imag := d2aInst(num_acc - 1).io.output(((bw / 2) - 1), 0)
+  } else {
+    io.out_s := complex_dot.io.out_s
+    io.out_real := complex_dot.io.out_s((bw - 1), (bw / 2))
+    io.out_imag := complex_dot.io.out_s(((bw / 2) - 1), 0)
+  }
   io.out_valid := ShiftRegister(io.in_valid, latency, io.in_en)
+
+  //printf(p"Counter: $counter\n")
+
+  //for (i <- 0 until n) {
+  //  printf(p"Dot Input VecA :[${i}] ${complex_dot.io.vec_a(i)}\n")
+  //}
+  //for (i <- 0 until n) {
+  //  printf(p"Dot Input VecB :[${i}] ${complex_dot.io.vec_b(i)}\n")
+  //}
+
+  //printf(p"Dot Product Output: ${complex_dot.io.out_s}\n")
+
+  //for (i <- 0 until num_acc) {
+  //  printf(p"acc_Input: ${d2aInst(i).io.input}, acc_Output: ${d2aInst(i).io.output}\n")
+  //}
+  //printf(p"rest: ${io.counter_reset}\n")
+  //printf(p"Final_Out: ${io.out_s}\n")
+  //printf(p"Real_Out: ${io.out_real}\n")
+  //printf(p"Imag_Out: ${io.out_imag}\n")
+  //printf("\n")
 
 }
 

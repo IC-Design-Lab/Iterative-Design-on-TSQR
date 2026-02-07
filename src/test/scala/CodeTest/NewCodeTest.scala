@@ -32,33 +32,33 @@ class Com_adder extends AnyFlatSpec with ChiselScalatestTester {
       dut.clock.step(latency)
 
 
-      val tolerance = 2 // 0.0000# percentage error
+      val tolerance = 2
 
-      // Convert IEEE 754 hex values to float
+
       def ieee754ToFloat(hex: String): Float = {
         val intBits = java.lang.Long.parseUnsignedLong(hex, 16).toInt
         java.lang.Float.intBitsToFloat(intBits)
       }
 
-      // Expected values
+
       val expectedRealHex = "3dcc5364"
       val expectedImagHex = "be5425bf"
 
       val expectedImag = ieee754ToFloat(expectedImagHex)
       val expectedReal = ieee754ToFloat(expectedRealHex)
 
-      // Get actual values
+
       val actualImagHex = dut.io.out_imag.peek().litValue.toString(16)
       val actualRealHex = dut.io.out_real.peek().litValue.toString(16)
       val actualImag = ieee754ToFloat(actualImagHex)
       val actualReal = ieee754ToFloat(actualRealHex)
 
-      // Print computed and expected values in decimal format
+
       println(f"Computed Real: $actualReal (Hex: $actualRealHex), Expected: $expectedReal (Hex: $expectedRealHex)")
       println(f"Computed Imaginary: $actualImag (Hex: $actualImagHex), Expected: $expectedImag (Hex: $expectedImagHex)")
 
 
-      // Check within tolerance
+
       assert(math.abs(actualReal - expectedReal) <= tolerance,
         s"FAIL: out_real = $actualReal is outside tolerance range of expected $expectedReal ±$tolerance")
 
@@ -106,33 +106,33 @@ class Complex_dot_streaming extends AnyFlatSpec with ChiselScalatestTester {
       dut.clock.step(latency)
 
 
-      val tolerance = 2 // 0.0000# percentage error
+      val tolerance = 2
 
-      // Convert IEEE 754 hex values to float
+
       def ieee754ToFloat(hex: String): Float = {
         val intBits = java.lang.Long.parseUnsignedLong(hex, 16).toInt
         java.lang.Float.intBitsToFloat(intBits)
       }
 
-      // Expected values
+
       val expectedRealHex = "3d96d16e"
       val expectedImagHex = "bf1f7089"
 
       val expectedImag = ieee754ToFloat(expectedImagHex)
       val expectedReal = ieee754ToFloat(expectedRealHex)
 
-      // Get actual values
+
       val actualImagHex = dut.io.out_imag.peek().litValue.toString(16)
       val actualRealHex = dut.io.out_real.peek().litValue.toString(16)
       val actualImag = ieee754ToFloat(actualImagHex)
       val actualReal = ieee754ToFloat(actualRealHex)
 
-      // Print computed and expected values in decimal format
+
       println(f"Computed Real: $actualReal (Hex: $actualRealHex), Expected: $expectedReal (Hex: $expectedRealHex)")
       println(f"Computed Imaginary: $actualImag (Hex: $actualImagHex), Expected: $expectedImag (Hex: $expectedImagHex)")
 
 
-      // Check within tolerance
+
       assert(math.abs(actualReal - expectedReal) <= tolerance,
         s"FAIL: out_real = $actualReal is outside tolerance range of expected $expectedReal ±$tolerance")
 
@@ -177,16 +177,40 @@ object tsqr_outer_loop_tb extends App {
     c.io.in_valid.poke(true.B)
 
     val inputVec = Seq(
-            Seq("h3F80000040000000".U, "hBF80000040000000".U),
-            Seq("hBF800000C0000000".U, "hC0000000BF800000".U)
+      //4x2 testing
+      // column 0
+      Seq("h3F80000040000000".U, "hBF80000040000000".U),
+      Seq("hBF800000C0000000".U, "hC0000000BF800000".U),
 
-//      Seq("h3f08a23e3fa25a28".U, "h40375d343f887134".U),
-//      Seq("h402ed2ec3f08a23e".U, "h0000000000000000".U)
+      //column 1 after update
+      //Seq("h3f08a23e3fa25a28".U, "h40375d343f887134".U),
+      //Seq("h402ed2ec3f08a23e".U, "h0000000000000000".U),
+
+      // 8x2 testing
+      // column 0
+      //      Seq("h3F8000003F800000".U, "hBF8000003F800000".U),
+      //      Seq("h3F800000C0000000".U, "h40000000BF800000".U),
+      //      Seq("hC00000003F800000".U, "h3F80000040000000".U),
+      //      Seq("hBF800000BF800000".U, "h400000003F800000".U)
+
+
+      // column 1 after update
+      // element 0 already updated is 3f22b300be033910
+
+//      Seq("h3fe964d23f6d19a0".U, "hbf32bb40bf7a41a0".U),
+//      Seq("h3f9d2f2f400cbd30".U, "hbf9d2f2f3fe685a0".U),
+//      Seq("hc00cbd30bf45a1a2".U, "h4004b998bf969b2f".U),
+//      Seq("hbf82df303fa6a260".U, "h0000000000000000".U)
+
+
+
+
+
     )
 
 
 
-    for (i <- 0 until (tk_done + 1)) {
+    for (i <- 0 until 400) { // changed from 220
       println(s"===== Cycle $i =====")
 
       if (i < inputVec.length) {
@@ -199,16 +223,12 @@ object tsqr_outer_loop_tb extends App {
       val alphaFinal    = c.io.alpha_out.peek().litValue
       val tkFinal       = c.io.out_tk.peek().litValue
 
-      //println(s"Input xk_in: ${xkInVals.mkString(", ")}")
 
-      ///val out1 = c.io.out_vk(0).peek().litValue
-      //val out2 = c.io.out_vk(1).peek().litValue
-      //println(f"out_vk= Vec(0x$out1%016x, 0x$out2%016x")
-
-      //println(s"[OUT] alpha: $alphaFinal, τ_k: $tkFinal")
       println(f"out_alpha = 0x$alphaFinal%016x")
       val out3 = c.io.out_tk.peek().litValue
+      val out4 = c.io.out_valid.peek().litValue
       println(f"out_tk = 0x$out3%08x")
+      println(f"out_valid = $out4")
       c.clock.step(1)
     }
   }
@@ -218,7 +238,7 @@ object tsqr_inner_loop_tb extends App {
 
   val sw = 2
   val k = 4
-  val c = 2
+  val c = 2//2
   val bw = 64
   val mult_pd = 10
   val add_pd = 13
@@ -230,7 +250,7 @@ object tsqr_inner_loop_tb extends App {
   val vk_latency = add_pd
   val dot_done = vk_latency + dot_latency
   val tk_scalar_done = dot_done + mult_pd
-  val total_latency = tk_scalar_done + mult_pd + add_pd + add_pd // extra buffer
+  val total_latency = tk_scalar_done + mult_pd + add_pd + 10 // extra buffer
 
   test(new tsqr_inner_loop(bw, sw, k, c, mult_pd, add_pd)) { c =>
 
@@ -238,35 +258,68 @@ object tsqr_inner_loop_tb extends App {
     c.io.en_in.poke(true.B)
     c.io.valid_in.poke(true.B)
     c.io.valid_in.poke(false.B)
+    c.io.column_count.poke(2.U)
 
-    // === All xk data for 2 columns ===
+
     val all_xk_batches = Seq(
-      // --- Column 0 ---
-      Seq("h3F80000040000000".U, "hBF80000040000000".U),
-      Seq("hBF800000C0000000".U, "hC0000000BF800000".U),
+      // 4x2 testing
+      // column 0
+            Seq("h3F80000040000000".U, "hBF80000040000000".U),
+            Seq("hBF800000C0000000".U, "hC0000000BF800000".U),
 
-      // --- Column 1 ---
-      Seq("h400000003F800000".U, "h3F80000040000000".U),
-      Seq("h400000003F800000".U, "h400000003F800000".U)
+       // column 1
+            Seq("h400000003F800000".U, "h3F80000040000000".U),
+            Seq("h400000003F800000".U, "h400000003F800000".U)
+
+      // after first pass
+//            Seq("h3f08a23e3fa25a28".U, "h40375d343f887134".U),
+//            Seq("h402ed2ec3f08a23e".U, "h0000000000000000".U),
 
 
-        // --- Column 0 ---//
-//      Seq("h3f08a23e3fa25a28".U, "h40375d343f887134".U),
-//      Seq("h402ed2ec3f08a23e".U, "h0000000000000000".U),
+
+      // 8x2 testing
+      // column 0
+//      Seq("h3F8000003F800000".U, "hBF8000003F800000".U),
+//      Seq("h3F800000C0000000".U, "h40000000BF800000".U),
+//      Seq("hC00000003F800000".U, "h3F80000040000000".U),
+//      Seq("hBF800000BF800000".U, "h400000003F800000".U),
 //
-//      // --- Column 1 ---
-//      Seq("h0000000000000000".U, "h0000000000000000".U),
-//      Seq("h0000000000000000".U, "h0000000000000000".U)
+//      // column 1
+//      Seq("h3F800000BF800000".U, "h400000003F800000".U),
+//      Seq("hBF800000BF800000".U, "h3F80000040000000".U),
+//      Seq("hBF80000040000000".U, "hC0000000BF800000".U),
+//      Seq("h40000000BF800000".U, "hBF8000003F800000".U)
+
+      // after first pass
+
+//            Seq("h3fe964d23f6d19a0".U, "hbf32bb40bf7a41a0".U),
+//            Seq("h3f9d2f2f400cbd30".U, "hbf9d2f2f3fe685a0".U),
+//            Seq("hc00cbd30bf45a1a2".U, "h4004b998bf969b2f".U),
+//            Seq("hbf82df303fa6a260".U, "h0000000000000000".U)
     )
+    //    //4x2 testing
+        val alpha = "h3fff7733407f7733".U
+        val tk = "hbd088000".U
+        c.io.tk_in.poke(tk)
 
-    val alpha = "h3fff7733407f7733".U
-    val tk = "hbd088000".U
+    // second pass column 1
+//        val alpha = "h3fd83996408043b1".U
+//        val tk = "hbd240000".U
+//        c.io.tk_in.poke(tk)
 
-//    val alpha = "h3fd83996408043b1".U
-//    val tk = "hbd240000".U
-    c.io.tk_in.poke(tk)
+    // 8x2 testing
+//    val alpha = "h407bf0ce407bf0ce".U // change
+//    val tk = "hbcd28000".U //change
+//    c.io.tk_in.poke(tk)
 
-    // Feed all batches
+    // second pass column 1
+//        val alpha = "h409d986c40202ffb".U // change
+//        val tk = "hbcc38000".U //change
+//        c.io.tk_in.poke(tk)
+
+
+
+
     for ((batch, cycle) <- all_xk_batches.zipWithIndex) {
       println(s"===== Cycle $cycle (input batch) =====")
       c.io.valid_in.poke(true.B)
@@ -275,71 +328,32 @@ object tsqr_inner_loop_tb extends App {
         c.io.xk_in(j).poke(batch(j))
       }
       c.io.alpha_in.poke(alpha)
-      //c.io.tk_in.poke(tk)
 
-      // Print outputs at each step
+
+
       val outVals = c.io.out_s.map(_.peek().litValue)
       println(f"out_s = Vec(${outVals.map(x => f"0x$x%016x").mkString(", ")})")
 
       c.clock.step()
     }
 
-    c.io.tk_in.poke(0.U)
-
-    c.io.counter_reset.poke(true.B)
-    c.clock.step(10)
-    c.io.counter_reset.poke(false.B)
-
-    val all_xk_batches2 = Seq(
-//            // --- Column 0 ---
-//            Seq("h3F80000040000000".U, "hBF80000040000000".U),
-//            Seq("hBF800000C0000000".U, "hC0000000BF800000".U),
-//
-//            // --- Column 1 ---
-//            Seq("h400000003F800000".U, "h3F80000040000000".U),
-//            Seq("h400000003F800000".U, "h400000003F800000".U)
 
 
-      // --- Column 0 ---//
-      Seq("h3f08a23e3fa25a28".U, "h40375d343f887134".U),
-      Seq("h402ed2ec3f08a23e".U, "h0000000000000000".U),
-
-      // --- Column 1 ---
-      Seq("h0000000000000000".U, "h0000000000000000".U),
-      Seq("h0000000000000000".U, "h0000000000000000".U)
-    )
-
-//        val alpha2 = "h3fff7733407f7733".U
-//        val tk2 = "hbd088000".U
-
-    val alpha2 = "h3fd83996408043b1".U
-    val tk2 = "hbd240000".U
-    c.io.tk_in.poke(tk2)
-    // Feed all batches
-    for ((batch, cycle) <- all_xk_batches2.zipWithIndex) {
-      println(s"===== Cycle $cycle (input batch) =====")
-      c.io.valid_in.poke(true.B)
-
-      for (j <- 0 until sw) {
-        c.io.xk_in(j).poke(batch(j))
-      }
-      c.io.alpha_in.poke(alpha2)
-      //c.io.tk_in.poke(tk2)
-
-      // Print outputs at each step
-      val outVals = c.io.out_s.map(_.peek().litValue)
-      println(f"out_s = Vec(${outVals.map(x => f"0x$x%016x").mkString(", ")})")
-
-      c.clock.step()
-    }
-
-    c.io.tk_in.poke(0.U)
-    // Hold valid low to flush pipeline
     c.io.valid_in.poke(false.B)
-    for (i <- 0 until (total_latency + num_batches - 1)) {
+
+    for (i <- 0 until 400) { // changed from 120
       println(s"===== Cycle ${i + all_xk_batches.length} (output phase) =====")
-      val outVals = c.io.out_s.map(_.peek().litValue)
-      println(f"out_s = Vec(${outVals.map(x => f"0x$x%016x").mkString(", ")})")
+
+      val outVals    = c.io.out_s.map(_.peek().litValue)
+      val validOut   = c.io.valid_out.peek().litToBoolean
+      val col2Done   = c.io.col2_done.peek().litToBoolean
+      val updatesDone = c.io.updates_done.peek().litToBoolean
+
+
+
+      println(f"out_s = Vec(${outVals.map(x => f"0x$x%016x").mkString(", ")})  " +
+        f"valid_out = $validOut  col2_done = $col2Done  updates_done = $updatesDone")
+
       c.clock.step()
     }
   }

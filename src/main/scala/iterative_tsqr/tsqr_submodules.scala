@@ -3,7 +3,7 @@ package iterative_tsqr
 import chisel3._
 import chisel3.util.{Cat, ShiftRegister, log2Ceil}
 import Binary_Modules.BinaryDesignsNew._
-import Complex_Modules.{cmplx_dot_iterative_v2, complex_adder, complex_mult}
+import Complex_Modules._
 import FP_Modules.FPUnits._
 
 //sub modules//
@@ -207,7 +207,7 @@ class tk_gen (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_pd: Int) 
   val out_s_reg = RegInit(0.U((bw/2).W))
   io.out_s := out_s_reg
 
-  val dot = Module(new cmplx_dot_iterative_v2(sw, k, bw, mult_pd, add_pd))
+  val dot = Module(new cmplx_dot_iterative(sw, k, bw, mult_pd, add_pd))
   dot.io.vec_a := VecInit(Seq.fill(sw)(0.U(bw.W)))
   dot.io.vec_b := VecInit(Seq.fill(sw)(0.U(bw.W)))
   dot.io.in_en := false.B
@@ -247,70 +247,6 @@ class tk_gen (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_pd: Int) 
   }
 }
 
-class iterative_axpy (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int) extends Module {
-  val io = IO(new Bundle {
-    val s_in = Input(UInt(bw.W))
-    val vk_in = Input(Vec(sw, UInt(bw.W)))
-    val xk_in = Input(Vec(sw, UInt(bw.W)))
-    val en_in = Input(Bool())
-    val counter_reset = Input(Bool())
-    val valid_in = Input(Bool())
-    //val valid_out = Output(Bool())
-    val out_s = Output(Vec(sw, UInt(bw.W)))
-  })
-
-  val counter = RegInit(0.U(32.W))
-  when(io.counter_reset) {
-    counter := 0.U
-  }.otherwise {
-    counter := Mux(io.en_in, counter + 1.U, counter)
-  }
-
-
-  val mult = Seq.fill(sw)(Module(new complex_mult(bw, mult_pd, add_pd)))
-
-  for (m <- mult) {
-    m.io.in_en := io.en_in
-    m.io.in_valid := io.valid_in
-    m.io.counter_reset := false.B
-    m.io.complexA := 0.U
-    m.io.complexB := 0.U
-  }
-
-  val adder = Seq.fill(sw)(Module(new complex_adder(bw, add_pd)))
-
-  for (m <- adder) {
-    m.io.in_en := io.en_in
-    m.io.in_valid := io.valid_in
-    m.io.complexA := 0.U
-    m.io.complexB := 0.U
-  }
-
-
-  when (counter >= 0.U) {
-    for (i <- 0 until sw) {
-      mult(i).io.in_en := true.B
-      mult(i).io.in_valid := true.B
-      mult(i).io.counter_reset
-      mult(i).io.complexA := io.s_in
-      mult(i).io.complexB := io.vk_in(i)
-    }
-  }
-
-
-  when (counter >= (mult_pd + add_pd).U) {
-    for (i <- 0 until sw) {
-      adder(i).io.in_en := true.B
-      adder(i).io.in_valid := true.B
-      adder(i).io.complexA := ShiftRegister(io.xk_in(i), (mult_pd + add_pd))
-      adder(i).io.complexB := mult(i).io.out_s
-    }
-  }
-  for (i <- 0 until sw) {
-    io.out_s(i) := adder(i).io.out_s
-  }
-}
-
 //outer loop top module//
 
 class tsqr_outer_loop (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_pd: Int, sqrt_pd: Int) extends Module {
@@ -327,7 +263,7 @@ class tsqr_outer_loop (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_
 
 
 
-  val num_batches = k / sw
+  val num_batches = k / sw //((k + (n - 1)) / n)
   val num_acc = log2Ceil(num_batches)
   val mult_latency = (mult_pd + add_pd) + (log2Ceil(sw) * add_pd)
   val dot_latency = mult_latency + (num_acc * add_pd) + (math.pow(2, (num_acc)).toInt - 1)
@@ -335,7 +271,7 @@ class tsqr_outer_loop (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_
   val alpha_latency = mult_pd + add_pd + sqrt_pd + div_pd + mult_pd
   val vk_gen_latency = add_pd
   val tk_gen_latency = dot_latency + div_pd + 1
-  val shift1 = (dot_latency + sqrt_pd)
+  val shift1 = (dot_latency + sqrt_pd)  //- (alpha_latency - mult_pd)
   val shift2 = alpha_latency + shift1
   val alpha_done = shift2
   val eu_norm_done = dot_latency + sqrt_pd
@@ -349,7 +285,9 @@ class tsqr_outer_loop (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_
     counter := Mux(io.in_en, counter + 1.U, counter)
   }
 
-  val eu_norm_dot = Module(new cmplx_dot_iterative_v2 (sw, k, bw, mult_pd, add_pd))
+  //counter:= Mux(io.in_en, counter + 1.U, counter)
+
+  val eu_norm_dot = Module(new cmplx_dot_iterative (sw, k, bw, mult_pd, add_pd))
   eu_norm_dot.io.in_en := false.B
   eu_norm_dot.io.in_valid := false.B
   eu_norm_dot.io.counter_reset := false.B
@@ -417,6 +355,9 @@ class tsqr_outer_loop (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_
 
     alpha_gen.io.in_x0 := shifted_x0
     alpha_gen.io.in_eu_norm := sqrt.io.out_s
+    //when(counter >= eu_norm_done.U) {
+    //  alpha_gen.io.in_eu_norm := sqrt.io.out_s
+    //}
   }
 
   when(counter >= alpha_done.U) {
@@ -436,55 +377,75 @@ class tsqr_outer_loop (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_
     tk_gen.io.vk_in := vk_gen.io.out_s
   }
   val alpha_reg = RegInit(0.U(bw.W))
+  val tk_reg = RegInit(0.U((bw/2).W))
 
   when (counter === alpha_done.U){
     alpha_reg := alpha_gen.io.out_s
   }
-
-  val valid_done = RegInit(false.B)
-
-  when (counter === tk_done.U) {
-    valid_done := true.B
+  when (counter === tk_done.U){
+    tk_reg := tk_gen.io.out_s
   }
 
-  when(io.counter_reset) {
-    valid_done := false.B
+  //val valid_done = RegInit(false.B)
+
+  when (counter === (tk_done + 1).U) {
+    io.out_valid := true.B
+  }.otherwise {
+    io.out_valid := false.B
   }
+
+  //  when(io.counter_reset) {
+  //    valid_done := false.B
+  //  }
 
   io.alpha_out := alpha_reg//Mux(counter === alpha_done.U, alpha_gen.io.out_s, 0.U)
   //io.out_vk := Mux(counter >= vk_ready.U && counter < (vk_ready + num_batches).U, vk_gen.io.out_s, VecInit.fill(sw)(0.U(bw.W)))
-  io.out_tk :=  Mux(counter === tk_done.U, tk_gen.io.out_s, 0.U)
-  io.out_valid :=  valid_done//Mux(counter === tk_done.U, true.B, 0.U)
+  io.out_tk :=  tk_reg//Mux(counter === tk_done.U, tk_gen.io.out_s, 0.U)
+  //io.out_valid :=  valid_done//Mux(counter === tk_done.U, true.B, 0.U)
+
 
 }
 
 //inner loop top module//
 
-class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c:Int, mult_pd: Int, add_pd: Int ) extends Module {
+class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c: Int, mult_pd: Int, add_pd: Int ) extends Module {
   val io = IO(new Bundle {
     val xk_in = Input(Vec(sw, UInt(bw.W)))
     val alpha_in = Input(UInt(bw.W))
     val tk_in = Input(UInt((bw/2).W))
-    val column_count = Input(UInt(log2Ceil(c).W))
+    val column_count = Input(UInt(log2Ceil(c + 1).W))
     val en_in = Input(Bool())
     val valid_in = Input(Bool())
     val counter_reset = Input(Bool())
     val valid_out = Output(Bool())
+    val col2_done = Output(Bool())
+    val updates_done = Output(Bool())
     val out_s = Output(Vec(sw, UInt(bw.W)))
+
+
   })
 
-  val num_batches = k / sw
+  val num_batches = k / sw //((k + (n - 1)) / n)
   val num_acc = log2Ceil(num_batches)
   val mult_latency = (mult_pd + add_pd) + (log2Ceil(sw) * add_pd)
   val dot_latency = mult_latency + (num_acc * add_pd) + (math.pow(2, (num_acc)).toInt - 1)
 
   val vk_latency = add_pd
+
   val dot_done = vk_latency + dot_latency
+
   val tk_scalar_done = dot_done + mult_pd + 1
+
   val axpy_latency = (mult_pd + add_pd) + add_pd
+
   val latency = tk_scalar_done + axpy_latency
+
   val vk_reg = RegInit(VecInit(Seq.fill(k)(0.U(bw.W))))
+
   val tk_reg = RegInit(0.U((bw/2).W))
+
+
+  //val tk_complex = Cat(io.tk_in, 0.U(32.W))
 
   val counter = RegInit(0.U(32.W))
   when(io.counter_reset) {
@@ -506,7 +467,7 @@ class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c:Int, mult_pd: Int, add_pd: In
   vk.io.in_valid := false.B
   vk.io.counter_reset := false.B
 
-  val dot = Module(new cmplx_dot_iterative_v2(sw, k, bw, mult_pd, add_pd ))
+  val dot = Module(new cmplx_dot_iterative(sw, k, bw, mult_pd, add_pd ))
   dot.io.vec_a := VecInit.fill(sw)(0.U(bw.W))
   dot.io.vec_b := VecInit.fill(sw)(0.U(bw.W))
   dot.io.in_en := false.B
@@ -555,6 +516,7 @@ class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c:Int, mult_pd: Int, add_pd: In
     vk_reg_pointer := 0.U
   }
 
+
   val vk_out_pointer = RegInit(0.U(log2Ceil(k).W))
   val vk_out_batch = Wire(Vec(sw, UInt(bw.W)))
 
@@ -573,15 +535,19 @@ class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c:Int, mult_pd: Int, add_pd: In
     dot.io.vec_b := ShiftRegister(io.xk_in, add_pd)
     when (counter < (vk_latency + num_batches).U) {
       dot.io.vec_a := vk.io.out_s
+      //dot.io.vec_b := ShiftRegister(io.xk_in, add_pd)
     }.otherwise {
       for (i <- 0 until sw) {
         dot.io.vec_a(i) := vk_out_batch(i)
       }
 
+
       val next_pointer = vk_out_pointer + sw.U
       vk_out_pointer := Mux(next_pointer >= k.U, next_pointer - k.U, next_pointer)
     }
   }
+
+
 
   when (counter >= dot_done.U) {
     mult(0).io.in_en := true.B
@@ -600,6 +566,9 @@ class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c:Int, mult_pd: Int, add_pd: In
 
   val tk_scalar = Cat(mult(0).io.out_s, mult(1).io.out_s)
   val scalar_reg = RegInit(0.U(bw.W))
+  //  when (counter === (tk_scalar_done - 1).U) {
+  //    scalar_reg := tk_scalar
+  //  }
 
   for(i <- 0 until c) {
     when (counter >= (tk_scalar_done - 1).U && counter === ((tk_scalar_done - 1) + (num_batches * i)).U) {
@@ -607,10 +576,13 @@ class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c:Int, mult_pd: Int, add_pd: In
     }
   }
 
+
+
   val vk_out_pointer2 = RegInit(0.U(log2Ceil(k).W))
   val vk_out_batch2 = Wire(Vec(sw, UInt(bw.W)))
 
   vk_out_batch2 := VecInit(Seq.fill(sw)(0.U(bw.W)))
+
 
   for (i <- 0 until sw) {
     val index2 = vk_out_pointer2 + i.U
@@ -618,15 +590,18 @@ class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c:Int, mult_pd: Int, add_pd: In
     vk_out_batch2(i) := vk_reg(new_index2)
   }
 
+
   when (counter >= tk_scalar_done.U) {
     axpy.io.en_in := true.B
     axpy.io.valid_in := true.B
     axpy.io.s_in := scalar_reg
     axpy.io.xk_in := ShiftRegister(io.xk_in, tk_scalar_done)
+    //axpy.io.vk_in := ShiftRegister(vk.io.out_s, (dot_latency + mult_pd + 1))
 
     for (i <- 0 until sw) {
       axpy.io.vk_in(i) := vk_out_batch2(i)
     }
+
 
     val next_pointer2 = vk_out_pointer2 + sw.U
     vk_out_pointer2 := Mux(next_pointer2 >= k.U, next_pointer2 - k.U, next_pointer2)
@@ -634,12 +609,37 @@ class tsqr_inner_loop (bw: Int, sw: Int, k: Int, c:Int, mult_pd: Int, add_pd: In
 
   when (io.counter_reset) {
     vk_out_pointer := 0.U
+    vk_out_pointer2 := 0.U // added this 2/6/26
   }
 
   io.out_s := axpy.io.out_s
-  when(counter >= latency.U) {
-    io.valid_out := true.B
-  }.otherwise {
-    io.valid_out := false.B
+
+
+  // new control logic
+  val colCountLast = RegInit(0.U(io.column_count.getWidth.W))
+  val colLatched = RegInit(false.B)
+  when(io.counter_reset) {
+    colCountLast := 0.U
+    colLatched := false.B
+  }.elsewhen(io.en_in && !colLatched) {
+    colCountLast := io.column_count
+    colLatched := true.B
   }
+
+
+
+  val start = latency.U(32.W)
+  val total_batches = Wire(UInt(32.W))
+  total_batches := (colCountLast * num_batches.U).asUInt
+  val end_of_total_valid = Wire(UInt(32.W))
+  end_of_total_valid := start + total_batches
+  val end_of_updates = end_of_total_valid - 1.U
+
+  io.valid_out := (counter >= start) && (counter < end_of_total_valid)
+  io.updates_done := (counter === end_of_updates)
+
+  val col2_end = start + (num_batches.U * 2.U) - 1.U
+  io.col2_done := (colCountLast >= 2.U) && (counter === col2_end)
+
+
 }
