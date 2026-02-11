@@ -258,22 +258,22 @@ object tsqr_inner_loop_tb extends App {
     c.io.en_in.poke(true.B)
     c.io.valid_in.poke(true.B)
     c.io.valid_in.poke(false.B)
-    c.io.column_count.poke(2.U)
+    c.io.column_count.poke(1.U)
 
 
     val all_xk_batches = Seq(
       // 4x2 testing
       // column 0
-            Seq("h3F80000040000000".U, "hBF80000040000000".U),
-            Seq("hBF800000C0000000".U, "hC0000000BF800000".U),
-
-       // column 1
-            Seq("h400000003F800000".U, "h3F80000040000000".U),
-            Seq("h400000003F800000".U, "h400000003F800000".U)
+//            Seq("h3F80000040000000".U, "hBF80000040000000".U),
+//            Seq("hBF800000C0000000".U, "hC0000000BF800000".U),
+//
+//       // column 1
+//            Seq("h400000003F800000".U, "h3F80000040000000".U),
+//            Seq("h400000003F800000".U, "h400000003F800000".U)
 
       // after first pass
-//            Seq("h3f08a23e3fa25a28".U, "h40375d343f887134".U),
-//            Seq("h402ed2ec3f08a23e".U, "h0000000000000000".U),
+            Seq("h3f08a23e3fa25a28".U, "h40375d343f887134".U),
+            Seq("h402ed2ec3f08a23e".U, "h0000000000000000".U),
 
 
 
@@ -298,14 +298,14 @@ object tsqr_inner_loop_tb extends App {
 //            Seq("hbf82df303fa6a260".U, "h0000000000000000".U)
     )
     //    //4x2 testing
-        val alpha = "h3fff7733407f7733".U
-        val tk = "hbd088000".U
-        c.io.tk_in.poke(tk)
+//        val alpha = "h3fff7733407f7733".U
+//        val tk = "hbd088000".U
+//        c.io.tk_in.poke(tk)
 
     // second pass column 1
-//        val alpha = "h3fd83996408043b1".U
-//        val tk = "hbd240000".U
-//        c.io.tk_in.poke(tk)
+        val alpha = "h3fd83996408043b1".U
+        val tk = "hbd240000".U
+        c.io.tk_in.poke(tk)
 
     // 8x2 testing
 //    val alpha = "h407bf0ce407bf0ce".U // change
