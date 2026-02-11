@@ -1,17 +1,1 @@
-
-target/
-project/target/
-project/project/target/
-project/project/project/target/
-
-.bloop/
-.metals/
-.bsp/
-
-.idea/
-*.iml
-
-.DS_Store
-
-
 test_run_dir/
