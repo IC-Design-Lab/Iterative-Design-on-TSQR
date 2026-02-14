@@ -394,6 +394,12 @@ class tsqr_outer_loop (bw: Int, sw: Int, k: Int, mult_pd: Int, add_pd: Int, div_
     io.out_valid := false.B
   }
 
+  //added this
+  when(io.counter_reset) {
+    alpha_reg := 0.U
+    tk_reg := 0.U
+  }
+
   //  when(io.counter_reset) {
   //    valid_done := false.B
   //  }

@@ -19,18 +19,15 @@ class syn_ram(bw: Int, sw: Int, depth: Int) extends Module {
       val doutb = Output(Vec(sw, UInt(bw.W)))
     }
   }
-  val mem = RegInit(VecInit.fill(depth)(VecInit.fill(sw)(0.U(bw.W))))
+
+  val mem = SyncReadMem(depth, Vec(sw, UInt(bw.W)))
+
   when(io.ena) {
-    for (i <- 0 until sw) {
-      when(io.wea(i)) {
-        mem(io.addra)(i) := io.dina(i)
-      }
-    }
+    val data_in = Wire(Vec(sw, UInt(bw.W)))
+    data_in := io.dina
+    mem.write(io.addra, data_in, io.wea.asBools)
   }
 
-  val data_out = RegInit(VecInit.fill(sw)(0.U(bw.W)))
-  when(io.enb) {
-    data_out := mem(io.addrb)
-  }
+  val data_out = mem.read(io.addrb, io.enb)
   io.doutb := data_out
 }
