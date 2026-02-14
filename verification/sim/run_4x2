@@ -41,6 +41,8 @@ add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/*
 add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/tri_/*
 add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/dm0/*
 add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/tri_/mem_0_ext/Memory
+add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/outerloop/*
+add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/innerloop/*
 
 #add wave -noupdate -format logic -hexadecimal tsqr_mc_st4_tb/u_tsqr_mc/rst        
 #add wave -noupdate -format logic -hexadecimal tsqr_mc_st4_tb/u_tsqr_mc/tsqr_en    
