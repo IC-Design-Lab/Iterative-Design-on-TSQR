@@ -3271,7 +3271,7 @@ module tsqr_topmodule(
   wire [31:0] _outerloop_io_out_tk;
   wire        _outerloop_io_out_valid;
   wire [63:0] _dm0_io_doutb_0;
-  wire [63:0] _tri_io_doutb_0;
+  wire [63:0] _tri__io_doutb_0;
   reg  [31:0] columns_left;
   reg         tk_done_reg;
   reg         innerloop_enable;
@@ -3379,7 +3379,7 @@ module tsqr_topmodule(
     read_valid_1 <= tri_enb | dm0_enb;
     read_counter_1 <= counter3;
   end // always @(posedge)
-  syn_ram tri_0 (
+  syn_ram tri_ (
     .clock      (clock),
     .io_ena     (tri_wea),
     .io_enb     (tri_enb),
@@ -3394,7 +3394,7 @@ module tsqr_topmodule(
                   : _GEN_2)
          : 2'h0),
     .io_dina_0  (_GEN_22 & (_GEN_5 ? _GEN_21 : _GEN_23) ? _innerloop_io_out_s_0 : 64'h0),
-    .io_doutb_0 (_tri_io_doutb_0)
+    .io_doutb_0 (_tri__io_doutb_0)
   );
   syn_ram dm0 (
     .clock      (clock),
@@ -3427,8 +3427,8 @@ module tsqr_topmodule(
     .io_xk_in_0
       (_GEN
          ? (c2_done_reg
-              ? (read_valid_1 ? (_GEN_26 ? _tri_io_doutb_0 : _dm0_io_doutb_0) : 64'h0)
-              : _GEN_0 ? _tri_io_doutb_0 : 64'h0)
+              ? (read_valid_1 ? (_GEN_26 ? _tri__io_doutb_0 : _dm0_io_doutb_0) : 64'h0)
+              : _GEN_0 ? _tri__io_doutb_0 : 64'h0)
          : 64'h0),
     .io_xk_in_1
       (_GEN & (c2_done_reg ? read_valid_1 & _GEN_26 : _GEN_0) ? _dm0_io_doutb_0 : 64'h0),
@@ -3444,11 +3444,11 @@ module tsqr_topmodule(
     .io_xk_in_0
       (_GEN_11
          ? (_GEN_5
-              ? ((|(read_counter[31:2])) | ~read_valid ? 64'h0 : _tri_io_doutb_0)
+              ? ((|(read_counter[31:2])) | ~read_valid ? 64'h0 : _tri__io_doutb_0)
               : _GEN_14 | ~(read_valid & _GEN_8)
                   ? 64'h0
                   : _GEN_12
-                      ? _tri_io_doutb_0
+                      ? _tri__io_doutb_0
                       : read_counter == 32'h1 ? _dm0_io_doutb_0 : 64'h0)
          : 64'h0),
     .io_xk_in_1
@@ -3470,6 +3470,6 @@ module tsqr_topmodule(
   assign io_tsqr_fi = tsqr_finished;
   assign io_mem0_fi = io_mem0_fi_0;
   assign io_mem1_fi = 1'h0;
-  assign io_r_0 = _GEN ? _tri_io_doutb_0 : 64'h0;
+  assign io_r_0 = _GEN ? _tri__io_doutb_0 : 64'h0;
 endmodule
 

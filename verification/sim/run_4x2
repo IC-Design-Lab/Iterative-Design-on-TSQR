@@ -1,0 +1,49 @@
+#!/bin/csh -f
+################################################################################
+# simulation top mcript
+# change modelsim in this file dir and run "do this_file.do"
+# project dir ---+---> hdl source dir
+#                +---> sim mcript dir
+#
+################################################################################
+
+# check if current dir has modelsim config file
+set has_config  [file exists modelsim.do]
+# config modelsim 
+if {$has_config==1} { do modelsim.do  ; }
+
+echo "+====================================="
+echo "| Creat Lib Work soc                  "
+echo "+====================================="
+vlib work
+vmap work work 
+
+echo "+====================================="
+echo "| Complile RTL Code of soc            "
+echo "+====================================="
+vlog +define+ST_WIDTH_2\
+     +define+ST2_RANDOM_TEST_4X2\
+     -f ../filelist/filelist_4x2.f  
+     #+define+ST16_RANDOM_TEST_16X8\
+     #+define+ST16_RANDOM_TEST_24X8\
+     #+define+ST16_RANDOM_TEST_32X8\
+
+echo "+====================================="
+echo "| Compiler Pass                       "
+echo "| Being to Run Simulation             "
+echo "+====================================="
+vsim -voptargs=+acc=npr work.tsqr_st2_tb -t 1ns
+
+###################################### mus  ####################################
+#add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/clock
+#add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/reset  
+add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/*
+add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/tri_/*
+add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/dm0/*
+add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/tri_/mem_0_ext/Memory
+
+#add wave -noupdate -format logic -hexadecimal tsqr_mc_st4_tb/u_tsqr_mc/rst        
+#add wave -noupdate -format logic -hexadecimal tsqr_mc_st4_tb/u_tsqr_mc/tsqr_en    
+
+run 35 us                                                                            
+
