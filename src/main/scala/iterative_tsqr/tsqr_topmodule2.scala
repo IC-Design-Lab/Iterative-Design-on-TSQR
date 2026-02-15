@@ -7,7 +7,7 @@ import Complex_Modules._
 import FP_Modules.FPUnits._
 
 
-class tsqr_topmodule2 (bw: Int, sw_ram: Int, sw_loops: Int, k: Int, c: Int, mult_pd: Int, add_pd: Int, div_pd: Int, sqrt_pd: Int, depth: Int) extends Module {
+class tsqr_topmodule (bw: Int, sw_ram: Int, sw_loops: Int, k: Int, c: Int, mult_pd: Int, add_pd: Int, div_pd: Int, sqrt_pd: Int, depth: Int) extends Module {
 
   val io = IO (new Bundle {
     val tsqr_en = Input(Bool())
@@ -80,7 +80,7 @@ class tsqr_topmodule2 (bw: Int, sw_ram: Int, sw_loops: Int, k: Int, c: Int, mult
   dm1.io.addrb := dm1_addrb
   val dm1_doutb = dm1.io.doutb
 
-  val outerloop = Module(new tsqr_outer_loop(bw, sw_loops, k, mult_pd, add_pd, div_pd, sqrt_pd))
+  val outerloop = Module(new tsqr_outer_loop2(bw, sw_loops, k, mult_pd, add_pd, div_pd, sqrt_pd))
   val innerloop = Module(new tsqr_inner_loop(bw, sw_loops, k, c, mult_pd, add_pd))
 
   outerloop.io.xk_in := VecInit.fill(sw_loops)(0.U(bw.W))

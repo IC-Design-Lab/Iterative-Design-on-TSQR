@@ -905,193 +905,291 @@ module cmplx_dot_iterative(
   assign io_out_imag = _d2aInst_0_io_output[31:0];
 endmodule
 
-module frac_sqrt(
+module frac_sqrt_BW23_15(
   input         clock,
                 reset,
-                io_in_en,
+  output        io_in_ready,
+  input         io_out_ready,
   input  [24:0] io_in_a,
+  input         io_in_valid,
   output [22:0] io_out_s
 );
 
-  reg [46:0] P_0;
-  reg [46:0] P_1;
-  reg [46:0] P_2;
-  reg [46:0] P_3;
-  reg [46:0] P_4;
-  reg [46:0] P_5;
-  reg [46:0] P_6;
-  reg [46:0] P_7;
-  reg [46:0] P_8;
-  reg [46:0] P_9;
-  reg [46:0] P_10;
-  reg [46:0] P_11;
-  reg [46:0] P_12;
-  reg [46:0] P_13;
-  reg [47:0] X_0;
-  reg [47:0] X_1;
-  reg [47:0] X_2;
-  reg [47:0] X_3;
-  reg [47:0] X_4;
-  reg [47:0] X_5;
-  reg [47:0] X_6;
-  reg [47:0] X_7;
-  reg [47:0] X_8;
-  reg [47:0] X_9;
-  reg [47:0] X_10;
-  reg [47:0] X_11;
-  reg [47:0] X_12;
-  reg [47:0] X_13;
-  reg [22:0] results_0;
-  reg [22:0] results_1;
-  reg [22:0] results_2;
-  reg [22:0] results_3;
-  reg [22:0] results_4;
-  reg [22:0] results_5;
-  reg [22:0] results_6;
-  reg [22:0] results_7;
-  reg [22:0] results_8;
-  reg [22:0] results_9;
-  reg [22:0] results_10;
-  reg [22:0] results_11;
-  reg [22:0] results_12;
-  reg [22:0] results_13;
-  reg [22:0] results_14;
+  reg         result_pipeline_pipe_v_14;
+  wire        pipe_enable = io_out_ready | ~result_pipeline_pipe_v_14;
+  reg  [46:0] P_pipeline_pipe_b;
+  reg  [46:0] P_pipeline_pipe_b_1;
+  reg  [46:0] P_pipeline_pipe_b_2;
+  reg  [46:0] P_pipeline_pipe_b_3;
+  reg  [46:0] P_pipeline_pipe_b_4;
+  reg  [46:0] P_pipeline_pipe_b_5;
+  reg  [46:0] P_pipeline_pipe_b_6;
+  reg  [46:0] P_pipeline_pipe_b_7;
+  reg  [46:0] P_pipeline_pipe_b_8;
+  reg  [46:0] P_pipeline_pipe_b_9;
+  reg  [46:0] P_pipeline_pipe_b_10;
+  reg  [46:0] P_pipeline_pipe_b_11;
+  reg  [46:0] P_pipeline_pipe_b_12;
+  reg  [46:0] P_pipeline_pipe_b_13;
+  reg  [47:0] X_pipeline_pipe_b;
+  reg  [47:0] X_pipeline_pipe_b_1;
+  reg  [47:0] X_pipeline_pipe_b_2;
+  reg  [47:0] X_pipeline_pipe_b_3;
+  reg  [47:0] X_pipeline_pipe_b_4;
+  reg  [47:0] X_pipeline_pipe_b_5;
+  reg  [47:0] X_pipeline_pipe_b_6;
+  reg  [47:0] X_pipeline_pipe_b_7;
+  reg  [47:0] X_pipeline_pipe_b_8;
+  reg  [47:0] X_pipeline_pipe_b_9;
+  reg  [47:0] X_pipeline_pipe_b_10;
+  reg  [47:0] X_pipeline_pipe_b_11;
+  reg  [47:0] X_pipeline_pipe_b_12;
+  reg  [47:0] X_pipeline_pipe_b_13;
+  reg         result_pipeline_pipe_v;
+  reg  [22:0] result_pipeline_pipe_b;
+  reg         result_pipeline_pipe_v_1;
+  reg  [22:0] result_pipeline_pipe_b_1;
+  reg         result_pipeline_pipe_v_2;
+  reg  [22:0] result_pipeline_pipe_b_2;
+  reg         result_pipeline_pipe_v_3;
+  reg  [22:0] result_pipeline_pipe_b_3;
+  reg         result_pipeline_pipe_v_4;
+  reg  [22:0] result_pipeline_pipe_b_4;
+  reg         result_pipeline_pipe_v_5;
+  reg  [22:0] result_pipeline_pipe_b_5;
+  reg         result_pipeline_pipe_v_6;
+  reg  [22:0] result_pipeline_pipe_b_6;
+  reg         result_pipeline_pipe_v_7;
+  reg  [22:0] result_pipeline_pipe_b_7;
+  reg         result_pipeline_pipe_v_8;
+  reg  [22:0] result_pipeline_pipe_b_8;
+  reg         result_pipeline_pipe_v_9;
+  reg  [22:0] result_pipeline_pipe_b_9;
+  reg         result_pipeline_pipe_v_10;
+  reg  [22:0] result_pipeline_pipe_b_10;
+  reg         result_pipeline_pipe_v_11;
+  reg  [22:0] result_pipeline_pipe_b_11;
+  reg         result_pipeline_pipe_v_12;
+  reg  [22:0] result_pipeline_pipe_b_12;
+  reg         result_pipeline_pipe_v_13;
+  reg  [22:0] result_pipeline_pipe_b_13;
+  reg  [22:0] result_pipeline_pipe_b_14;
   always @(posedge clock) begin
-    if (reset) begin
-      P_0 <= 47'h0;
-      P_1 <= 47'h0;
-      P_2 <= 47'h0;
-      P_3 <= 47'h0;
-      P_4 <= 47'h0;
-      P_5 <= 47'h0;
-      P_6 <= 47'h0;
-      P_7 <= 47'h0;
-      P_8 <= 47'h0;
-      P_9 <= 47'h0;
-      P_10 <= 47'h0;
-      P_11 <= 47'h0;
-      P_12 <= 47'h0;
-      P_13 <= 47'h0;
-      X_0 <= 48'h0;
-      X_1 <= 48'h0;
-      X_2 <= 48'h0;
-      X_3 <= 48'h0;
-      X_4 <= 48'h0;
-      X_5 <= 48'h0;
-      X_6 <= 48'h0;
-      X_7 <= 48'h0;
-      X_8 <= 48'h0;
-      X_9 <= 48'h0;
-      X_10 <= 48'h0;
-      X_11 <= 48'h0;
-      X_12 <= 48'h0;
-      X_13 <= 48'h0;
-      results_0 <= 23'h0;
-      results_1 <= 23'h0;
-      results_2 <= 23'h0;
-      results_3 <= 23'h0;
-      results_4 <= 23'h0;
-      results_5 <= 23'h0;
-      results_6 <= 23'h0;
-      results_7 <= 23'h0;
-      results_8 <= 23'h0;
-      results_9 <= 23'h0;
-      results_10 <= 23'h0;
-      results_11 <= 23'h0;
-      results_12 <= 23'h0;
-      results_13 <= 23'h0;
-      results_14 <= 23'h0;
-    end
-    else if (io_in_en) begin
+    automatic logic _result_pipeline_T;
+    automatic logic _result_pipeline_T_1;
+    automatic logic _result_pipeline_T_2;
+    automatic logic _result_pipeline_T_3;
+    automatic logic _result_pipeline_T_4;
+    automatic logic _result_pipeline_T_5;
+    automatic logic _result_pipeline_T_6;
+    automatic logic _result_pipeline_T_7;
+    automatic logic _result_pipeline_T_8;
+    automatic logic _result_pipeline_T_9;
+    automatic logic _result_pipeline_T_10;
+    automatic logic _result_pipeline_T_11;
+    automatic logic _result_pipeline_T_12;
+    automatic logic _result_pipeline_T_13;
+    automatic logic _result_pipeline_T_14;
+    _result_pipeline_T = io_in_valid & pipe_enable;
+    _result_pipeline_T_1 = result_pipeline_pipe_v & pipe_enable;
+    _result_pipeline_T_2 = result_pipeline_pipe_v_1 & pipe_enable;
+    _result_pipeline_T_3 = result_pipeline_pipe_v_2 & pipe_enable;
+    _result_pipeline_T_4 = result_pipeline_pipe_v_3 & pipe_enable;
+    _result_pipeline_T_5 = result_pipeline_pipe_v_4 & pipe_enable;
+    _result_pipeline_T_6 = result_pipeline_pipe_v_5 & pipe_enable;
+    _result_pipeline_T_7 = result_pipeline_pipe_v_6 & pipe_enable;
+    _result_pipeline_T_8 = result_pipeline_pipe_v_7 & pipe_enable;
+    _result_pipeline_T_9 = result_pipeline_pipe_v_8 & pipe_enable;
+    _result_pipeline_T_10 = result_pipeline_pipe_v_9 & pipe_enable;
+    _result_pipeline_T_11 = result_pipeline_pipe_v_10 & pipe_enable;
+    _result_pipeline_T_12 = result_pipeline_pipe_v_11 & pipe_enable;
+    _result_pipeline_T_13 = result_pipeline_pipe_v_12 & pipe_enable;
+    _result_pipeline_T_14 = result_pipeline_pipe_v_13 & pipe_enable;
+    if (_result_pipeline_T) begin
       automatic logic [47:0] _GEN = {io_in_a, 23'h0};
       automatic logic [47:0] _in_T_1 = _GEN - 48'h400000000000;
       automatic logic        yleqx = _in_T_1 > 48'h4FFFFFFFFFFF;
-      automatic logic [47:0] y_1 = {2'h0, P_0[46:1]} + 48'h40000000000;
-      automatic logic        yleqx_1 = y_1 <= X_0;
-      automatic logic [47:0] y_2 = {3'h0, P_1[46:2]} + 48'h10000000000;
-      automatic logic        yleqx_2 = y_2 <= X_1;
-      automatic logic [47:0] y_3 = {4'h0, P_2[46:3]} + 48'h4000000000;
-      automatic logic        yleqx_3 = y_3 <= X_2;
-      automatic logic [47:0] y_4 = {5'h0, P_3[46:4]} + 48'h1000000000;
-      automatic logic        yleqx_4 = y_4 <= X_3;
-      automatic logic [47:0] y_5 = {6'h0, P_4[46:5]} + 48'h400000000;
-      automatic logic        yleqx_5 = y_5 <= X_4;
-      automatic logic [47:0] y_6 = {7'h0, P_5[46:6]} + 48'h100000000;
-      automatic logic        yleqx_6 = y_6 <= X_5;
-      automatic logic [47:0] y_7 = {8'h0, P_6[46:7]} + 48'h40000000;
-      automatic logic        yleqx_7 = y_7 <= X_6;
-      automatic logic [47:0] y_8 = {9'h0, P_7[46:8]} + 48'h10000000;
-      automatic logic        yleqx_8 = y_8 <= X_7;
-      automatic logic [47:0] y_9 = {10'h0, P_8[46:9]} + 48'h4000000;
-      automatic logic        yleqx_9 = y_9 <= X_8;
-      automatic logic [47:0] y_10 = {11'h0, P_9[46:10]} + 48'h1000000;
-      automatic logic        yleqx_10 = y_10 <= X_9;
-      automatic logic [47:0] y_11 = {12'h0, P_10[46:11]} + 48'h400000;
-      automatic logic        yleqx_11 = y_11 <= X_10;
-      automatic logic [47:0] y_12 = {13'h0, P_11[46:12]} + 48'h100000;
-      automatic logic        yleqx_12 = y_12 <= X_11;
-      automatic logic [47:0] y_13 = {14'h0, P_12[46:13]} + 48'h40000;
-      automatic logic        yleqx_13 = y_13 <= X_12;
-      P_0 <= {1'h1, yleqx, 45'h0};
-      P_1 <= yleqx_1 ? P_0 + 47'h100000000000 : P_0;
-      P_2 <= yleqx_2 ? P_1 + 47'h80000000000 : P_1;
-      P_3 <= yleqx_3 ? P_2 + 47'h40000000000 : P_2;
-      P_4 <= yleqx_4 ? P_3 + 47'h20000000000 : P_3;
-      P_5 <= yleqx_5 ? P_4 + 47'h10000000000 : P_4;
-      P_6 <= yleqx_6 ? P_5 + 47'h8000000000 : P_5;
-      P_7 <= yleqx_7 ? P_6 + 47'h4000000000 : P_6;
-      P_8 <= yleqx_8 ? P_7 + 47'h2000000000 : P_7;
-      P_9 <= yleqx_9 ? P_8 + 47'h1000000000 : P_8;
-      P_10 <= yleqx_10 ? P_9 + 47'h800000000 : P_9;
-      P_11 <= yleqx_11 ? P_10 + 47'h400000000 : P_10;
-      P_12 <= yleqx_12 ? P_11 + 47'h200000000 : P_11;
-      P_13 <= yleqx_13 ? P_12 + 47'h100000000 : P_12;
-      X_0 <= yleqx ? _GEN + 48'h700000000000 : _in_T_1;
-      X_1 <= yleqx_1 ? X_0 - y_1 : X_0;
-      X_2 <= yleqx_2 ? X_1 - y_2 : X_1;
-      X_3 <= yleqx_3 ? X_2 - y_3 : X_2;
-      X_4 <= yleqx_4 ? X_3 - y_4 : X_3;
-      X_5 <= yleqx_5 ? X_4 - y_5 : X_4;
-      X_6 <= yleqx_6 ? X_5 - y_6 : X_5;
-      X_7 <= yleqx_7 ? X_6 - y_7 : X_6;
-      X_8 <= yleqx_8 ? X_7 - y_8 : X_7;
-      X_9 <= yleqx_9 ? X_8 - y_9 : X_8;
-      X_10 <= yleqx_10 ? X_9 - y_10 : X_9;
-      X_11 <= yleqx_11 ? X_10 - y_11 : X_10;
-      X_12 <= yleqx_12 ? X_11 - y_12 : X_11;
-      X_13 <= yleqx_13 ? X_12 - y_13 : X_12;
-      results_0 <= {yleqx, 22'h0};
-      results_1 <= {results_0[22], yleqx_1, results_0[20:0]};
-      results_2 <= {results_1[22:21], yleqx_2, results_1[19:0]};
-      results_3 <= {results_2[22:20], yleqx_3, results_2[18:0]};
-      results_4 <= {results_3[22:19], yleqx_4, results_3[17:0]};
-      results_5 <= {results_4[22:18], yleqx_5, results_4[16:0]};
-      results_6 <= {results_5[22:17], yleqx_6, results_5[15:0]};
-      results_7 <= {results_6[22:16], yleqx_7, results_6[14:0]};
-      results_8 <= {results_7[22:15], yleqx_8, results_7[13:0]};
-      results_9 <= {results_8[22:14], yleqx_9, results_8[12:0]};
-      results_10 <= {results_9[22:13], yleqx_10, results_9[11:0]};
-      results_11 <= {results_10[22:12], yleqx_11, results_10[10:0]};
-      results_12 <= {results_11[22:11], yleqx_12, results_11[9:0]};
-      results_13 <= {results_12[22:10], yleqx_13, results_12[8:0]};
-      results_14 <=
-        {results_13[22:9], {15'h0, P_13[46:14]} + 48'h10000 <= X_13, results_13[7:0]};
+      P_pipeline_pipe_b <= {1'h1, yleqx, 45'h0};
+      X_pipeline_pipe_b <= yleqx ? _GEN + 48'h700000000000 : _in_T_1;
+      result_pipeline_pipe_b <= {yleqx, 22'h0};
+    end
+    if (_result_pipeline_T_1) begin
+      automatic logic [47:0] y_1 = {2'h0, P_pipeline_pipe_b[46:1]} + 48'h40000000000;
+      automatic logic        yleqx_1 = y_1 <= X_pipeline_pipe_b;
+      P_pipeline_pipe_b_1 <=
+        yleqx_1 ? P_pipeline_pipe_b + 47'h100000000000 : P_pipeline_pipe_b;
+      X_pipeline_pipe_b_1 <= yleqx_1 ? X_pipeline_pipe_b - y_1 : X_pipeline_pipe_b;
+      result_pipeline_pipe_b_1 <=
+        {result_pipeline_pipe_b[22], yleqx_1, result_pipeline_pipe_b[20:0]};
+    end
+    if (_result_pipeline_T_2) begin
+      automatic logic [47:0] y_2 = {3'h0, P_pipeline_pipe_b_1[46:2]} + 48'h10000000000;
+      automatic logic        yleqx_2 = y_2 <= X_pipeline_pipe_b_1;
+      P_pipeline_pipe_b_2 <=
+        yleqx_2 ? P_pipeline_pipe_b_1 + 47'h80000000000 : P_pipeline_pipe_b_1;
+      X_pipeline_pipe_b_2 <= yleqx_2 ? X_pipeline_pipe_b_1 - y_2 : X_pipeline_pipe_b_1;
+      result_pipeline_pipe_b_2 <=
+        {result_pipeline_pipe_b_1[22:21], yleqx_2, result_pipeline_pipe_b_1[19:0]};
+    end
+    if (_result_pipeline_T_3) begin
+      automatic logic [47:0] y_3 = {4'h0, P_pipeline_pipe_b_2[46:3]} + 48'h4000000000;
+      automatic logic        yleqx_3 = y_3 <= X_pipeline_pipe_b_2;
+      P_pipeline_pipe_b_3 <=
+        yleqx_3 ? P_pipeline_pipe_b_2 + 47'h40000000000 : P_pipeline_pipe_b_2;
+      X_pipeline_pipe_b_3 <= yleqx_3 ? X_pipeline_pipe_b_2 - y_3 : X_pipeline_pipe_b_2;
+      result_pipeline_pipe_b_3 <=
+        {result_pipeline_pipe_b_2[22:20], yleqx_3, result_pipeline_pipe_b_2[18:0]};
+    end
+    if (_result_pipeline_T_4) begin
+      automatic logic [47:0] y_4 = {5'h0, P_pipeline_pipe_b_3[46:4]} + 48'h1000000000;
+      automatic logic        yleqx_4 = y_4 <= X_pipeline_pipe_b_3;
+      P_pipeline_pipe_b_4 <=
+        yleqx_4 ? P_pipeline_pipe_b_3 + 47'h20000000000 : P_pipeline_pipe_b_3;
+      X_pipeline_pipe_b_4 <= yleqx_4 ? X_pipeline_pipe_b_3 - y_4 : X_pipeline_pipe_b_3;
+      result_pipeline_pipe_b_4 <=
+        {result_pipeline_pipe_b_3[22:19], yleqx_4, result_pipeline_pipe_b_3[17:0]};
+    end
+    if (_result_pipeline_T_5) begin
+      automatic logic [47:0] y_5 = {6'h0, P_pipeline_pipe_b_4[46:5]} + 48'h400000000;
+      automatic logic        yleqx_5 = y_5 <= X_pipeline_pipe_b_4;
+      P_pipeline_pipe_b_5 <=
+        yleqx_5 ? P_pipeline_pipe_b_4 + 47'h10000000000 : P_pipeline_pipe_b_4;
+      X_pipeline_pipe_b_5 <= yleqx_5 ? X_pipeline_pipe_b_4 - y_5 : X_pipeline_pipe_b_4;
+      result_pipeline_pipe_b_5 <=
+        {result_pipeline_pipe_b_4[22:18], yleqx_5, result_pipeline_pipe_b_4[16:0]};
+    end
+    if (_result_pipeline_T_6) begin
+      automatic logic [47:0] y_6 = {7'h0, P_pipeline_pipe_b_5[46:6]} + 48'h100000000;
+      automatic logic        yleqx_6 = y_6 <= X_pipeline_pipe_b_5;
+      P_pipeline_pipe_b_6 <=
+        yleqx_6 ? P_pipeline_pipe_b_5 + 47'h8000000000 : P_pipeline_pipe_b_5;
+      X_pipeline_pipe_b_6 <= yleqx_6 ? X_pipeline_pipe_b_5 - y_6 : X_pipeline_pipe_b_5;
+      result_pipeline_pipe_b_6 <=
+        {result_pipeline_pipe_b_5[22:17], yleqx_6, result_pipeline_pipe_b_5[15:0]};
+    end
+    if (_result_pipeline_T_7) begin
+      automatic logic [47:0] y_7 = {8'h0, P_pipeline_pipe_b_6[46:7]} + 48'h40000000;
+      automatic logic        yleqx_7 = y_7 <= X_pipeline_pipe_b_6;
+      P_pipeline_pipe_b_7 <=
+        yleqx_7 ? P_pipeline_pipe_b_6 + 47'h4000000000 : P_pipeline_pipe_b_6;
+      X_pipeline_pipe_b_7 <= yleqx_7 ? X_pipeline_pipe_b_6 - y_7 : X_pipeline_pipe_b_6;
+      result_pipeline_pipe_b_7 <=
+        {result_pipeline_pipe_b_6[22:16], yleqx_7, result_pipeline_pipe_b_6[14:0]};
+    end
+    if (_result_pipeline_T_8) begin
+      automatic logic [47:0] y_8 = {9'h0, P_pipeline_pipe_b_7[46:8]} + 48'h10000000;
+      automatic logic        yleqx_8 = y_8 <= X_pipeline_pipe_b_7;
+      P_pipeline_pipe_b_8 <=
+        yleqx_8 ? P_pipeline_pipe_b_7 + 47'h2000000000 : P_pipeline_pipe_b_7;
+      X_pipeline_pipe_b_8 <= yleqx_8 ? X_pipeline_pipe_b_7 - y_8 : X_pipeline_pipe_b_7;
+      result_pipeline_pipe_b_8 <=
+        {result_pipeline_pipe_b_7[22:15], yleqx_8, result_pipeline_pipe_b_7[13:0]};
+    end
+    if (_result_pipeline_T_9) begin
+      automatic logic [47:0] y_9 = {10'h0, P_pipeline_pipe_b_8[46:9]} + 48'h4000000;
+      automatic logic        yleqx_9 = y_9 <= X_pipeline_pipe_b_8;
+      P_pipeline_pipe_b_9 <=
+        yleqx_9 ? P_pipeline_pipe_b_8 + 47'h1000000000 : P_pipeline_pipe_b_8;
+      X_pipeline_pipe_b_9 <= yleqx_9 ? X_pipeline_pipe_b_8 - y_9 : X_pipeline_pipe_b_8;
+      result_pipeline_pipe_b_9 <=
+        {result_pipeline_pipe_b_8[22:14], yleqx_9, result_pipeline_pipe_b_8[12:0]};
+    end
+    if (_result_pipeline_T_10) begin
+      automatic logic [47:0] y_10 = {11'h0, P_pipeline_pipe_b_9[46:10]} + 48'h1000000;
+      automatic logic        yleqx_10 = y_10 <= X_pipeline_pipe_b_9;
+      P_pipeline_pipe_b_10 <=
+        yleqx_10 ? P_pipeline_pipe_b_9 + 47'h800000000 : P_pipeline_pipe_b_9;
+      X_pipeline_pipe_b_10 <= yleqx_10 ? X_pipeline_pipe_b_9 - y_10 : X_pipeline_pipe_b_9;
+      result_pipeline_pipe_b_10 <=
+        {result_pipeline_pipe_b_9[22:13], yleqx_10, result_pipeline_pipe_b_9[11:0]};
+    end
+    if (_result_pipeline_T_11) begin
+      automatic logic [47:0] y_11 = {12'h0, P_pipeline_pipe_b_10[46:11]} + 48'h400000;
+      automatic logic        yleqx_11 = y_11 <= X_pipeline_pipe_b_10;
+      P_pipeline_pipe_b_11 <=
+        yleqx_11 ? P_pipeline_pipe_b_10 + 47'h400000000 : P_pipeline_pipe_b_10;
+      X_pipeline_pipe_b_11 <=
+        yleqx_11 ? X_pipeline_pipe_b_10 - y_11 : X_pipeline_pipe_b_10;
+      result_pipeline_pipe_b_11 <=
+        {result_pipeline_pipe_b_10[22:12], yleqx_11, result_pipeline_pipe_b_10[10:0]};
+    end
+    if (_result_pipeline_T_12) begin
+      automatic logic [47:0] y_12 = {13'h0, P_pipeline_pipe_b_11[46:12]} + 48'h100000;
+      automatic logic        yleqx_12 = y_12 <= X_pipeline_pipe_b_11;
+      P_pipeline_pipe_b_12 <=
+        yleqx_12 ? P_pipeline_pipe_b_11 + 47'h200000000 : P_pipeline_pipe_b_11;
+      X_pipeline_pipe_b_12 <=
+        yleqx_12 ? X_pipeline_pipe_b_11 - y_12 : X_pipeline_pipe_b_11;
+      result_pipeline_pipe_b_12 <=
+        {result_pipeline_pipe_b_11[22:11], yleqx_12, result_pipeline_pipe_b_11[9:0]};
+    end
+    if (_result_pipeline_T_13) begin
+      automatic logic [47:0] y_13 = {14'h0, P_pipeline_pipe_b_12[46:13]} + 48'h40000;
+      automatic logic        yleqx_13 = y_13 <= X_pipeline_pipe_b_12;
+      P_pipeline_pipe_b_13 <=
+        yleqx_13 ? P_pipeline_pipe_b_12 + 47'h100000000 : P_pipeline_pipe_b_12;
+      X_pipeline_pipe_b_13 <=
+        yleqx_13 ? X_pipeline_pipe_b_12 - y_13 : X_pipeline_pipe_b_12;
+      result_pipeline_pipe_b_13 <=
+        {result_pipeline_pipe_b_12[22:10], yleqx_13, result_pipeline_pipe_b_12[8:0]};
+    end
+    if (_result_pipeline_T_14)
+      result_pipeline_pipe_b_14 <=
+        {result_pipeline_pipe_b_13[22:9],
+         {15'h0, P_pipeline_pipe_b_13[46:14]} + 48'h10000 <= X_pipeline_pipe_b_13,
+         result_pipeline_pipe_b_13[7:0]};
+    if (reset) begin
+      result_pipeline_pipe_v <= 1'h0;
+      result_pipeline_pipe_v_1 <= 1'h0;
+      result_pipeline_pipe_v_2 <= 1'h0;
+      result_pipeline_pipe_v_3 <= 1'h0;
+      result_pipeline_pipe_v_4 <= 1'h0;
+      result_pipeline_pipe_v_5 <= 1'h0;
+      result_pipeline_pipe_v_6 <= 1'h0;
+      result_pipeline_pipe_v_7 <= 1'h0;
+      result_pipeline_pipe_v_8 <= 1'h0;
+      result_pipeline_pipe_v_9 <= 1'h0;
+      result_pipeline_pipe_v_10 <= 1'h0;
+      result_pipeline_pipe_v_11 <= 1'h0;
+      result_pipeline_pipe_v_12 <= 1'h0;
+      result_pipeline_pipe_v_13 <= 1'h0;
+      result_pipeline_pipe_v_14 <= 1'h0;
+    end
+    else begin
+      result_pipeline_pipe_v <= _result_pipeline_T;
+      result_pipeline_pipe_v_1 <= _result_pipeline_T_1;
+      result_pipeline_pipe_v_2 <= _result_pipeline_T_2;
+      result_pipeline_pipe_v_3 <= _result_pipeline_T_3;
+      result_pipeline_pipe_v_4 <= _result_pipeline_T_4;
+      result_pipeline_pipe_v_5 <= _result_pipeline_T_5;
+      result_pipeline_pipe_v_6 <= _result_pipeline_T_6;
+      result_pipeline_pipe_v_7 <= _result_pipeline_T_7;
+      result_pipeline_pipe_v_8 <= _result_pipeline_T_8;
+      result_pipeline_pipe_v_9 <= _result_pipeline_T_9;
+      result_pipeline_pipe_v_10 <= _result_pipeline_T_10;
+      result_pipeline_pipe_v_11 <= _result_pipeline_T_11;
+      result_pipeline_pipe_v_12 <= _result_pipeline_T_12;
+      result_pipeline_pipe_v_13 <= _result_pipeline_T_13;
+      result_pipeline_pipe_v_14 <= _result_pipeline_T_14;
     end
   end // always @(posedge)
-  assign io_out_s = results_14;
+  assign io_in_ready = pipe_enable;
+  assign io_out_s = result_pipeline_pipe_b_14;
 endmodule
 
-module FP_sqrt_32_15(
+module FP_sqrt_32_15_15(
   input         clock,
                 reset,
-                io_in_en,
+                io_out_ready,
+                io_in_valid,
   input  [31:0] io_in_a,
   output [31:0] io_out_s
 );
 
-  wire [22:0] _frac_sqrt_io_out_s;
-  wire [8:0]  exp = {1'h0, io_in_a[30:23]} - 9'h7F;
-  wire [7:0]  ref_exp = exp[8] ? ~(exp[7:0]) + 8'h1 : exp[7:0];
+  wire        _frac_sqrt_BW23_15_io_in_ready;
+  wire [22:0] _frac_sqrt_BW23_15_io_out_s;
+  wire [8:0]  _GEN = {1'h0, io_in_a[30:23]};
+  wire [8:0]  exp = _GEN - 9'h7F;
   reg         out_sign_r;
   reg         out_sign_r_1;
   reg         out_sign_r_2;
@@ -1107,24 +1205,24 @@ module FP_sqrt_32_15(
   reg         out_sign_r_12;
   reg         out_sign_r_13;
   reg         out_sign;
-  reg  [6:0]  out_exp_r;
-  reg  [6:0]  out_exp_r_1;
-  reg  [6:0]  out_exp_r_2;
-  reg  [6:0]  out_exp_r_3;
-  reg  [6:0]  out_exp_r_4;
-  reg  [6:0]  out_exp_r_5;
-  reg  [6:0]  out_exp_r_6;
-  reg  [6:0]  out_exp_r_7;
-  reg  [6:0]  out_exp_r_8;
-  reg  [6:0]  out_exp_r_9;
-  reg  [6:0]  out_exp_r_10;
-  reg  [6:0]  out_exp_r_11;
-  reg  [6:0]  out_exp_r_12;
-  reg  [6:0]  out_exp_r_13;
-  reg  [6:0]  out_exp_r_14;
+  reg  [7:0]  out_exp_r;
+  reg  [7:0]  out_exp_r_1;
+  reg  [7:0]  out_exp_r_2;
+  reg  [7:0]  out_exp_r_3;
+  reg  [7:0]  out_exp_r_4;
+  reg  [7:0]  out_exp_r_5;
+  reg  [7:0]  out_exp_r_6;
+  reg  [7:0]  out_exp_r_7;
+  reg  [7:0]  out_exp_r_8;
+  reg  [7:0]  out_exp_r_9;
+  reg  [7:0]  out_exp_r_10;
+  reg  [7:0]  out_exp_r_11;
+  reg  [7:0]  out_exp_r_12;
+  reg  [7:0]  out_exp_r_13;
+  reg  [7:0]  out_exp_r_14;
   always @(posedge clock) begin
-    if (io_in_en) begin
-      automatic logic [7:0] _exp_new_T_1 = ref_exp - 8'h1;
+    if (_frac_sqrt_BW23_15_io_in_ready) begin
+      automatic logic [8:0] _exp_new_T_1 = _GEN - 9'h80;
       out_sign_r <= io_in_a[31];
       out_sign_r_1 <= out_sign_r;
       out_sign_r_2 <= out_sign_r_1;
@@ -1140,7 +1238,7 @@ module FP_sqrt_32_15(
       out_sign_r_12 <= out_sign_r_11;
       out_sign_r_13 <= out_sign_r_12;
       out_sign <= out_sign_r_13;
-      out_exp_r <= ref_exp[0] ? _exp_new_T_1[7:1] : ref_exp[7:1];
+      out_exp_r <= exp[0] ? _exp_new_T_1[8:1] : exp[8:1];
       out_exp_r_1 <= out_exp_r;
       out_exp_r_2 <= out_exp_r_1;
       out_exp_r_3 <= out_exp_r_2;
@@ -1157,14 +1255,16 @@ module FP_sqrt_32_15(
       out_exp_r_14 <= out_exp_r_13;
     end
   end // always @(posedge)
-  frac_sqrt frac_sqrt (
-    .clock    (clock),
-    .reset    (reset),
-    .io_in_en (io_in_en),
-    .io_in_a  (ref_exp[0] ? {1'h1, io_in_a[22:0], 1'h0} : {2'h1, io_in_a[22:0]}),
-    .io_out_s (_frac_sqrt_io_out_s)
+  frac_sqrt_BW23_15 frac_sqrt_BW23_15 (
+    .clock        (clock),
+    .reset        (reset),
+    .io_in_ready  (_frac_sqrt_BW23_15_io_in_ready),
+    .io_out_ready (io_out_ready),
+    .io_in_a      (exp[0] ? {1'h1, io_in_a[22:0], 1'h0} : {2'h1, io_in_a[22:0]}),
+    .io_in_valid  (io_in_valid),
+    .io_out_s     (_frac_sqrt_BW23_15_io_out_s)
   );
-  assign io_out_s = {out_sign, {1'h0, out_exp_r_14} + 8'h7F, _frac_sqrt_io_out_s};
+  assign io_out_s = {out_sign, out_exp_r_14 + 8'h7F, _frac_sqrt_BW23_15_io_out_s};
 endmodule
 
 module divider_BW25(
@@ -1420,7 +1520,7 @@ module FP_divider_32_10(
                : _divider_BW25_io_out_s[22:0]};
 endmodule
 
-module alpha(
+module alpha2(
   input         clock,
                 reset,
   input  [63:0] io_in_x0,
@@ -1631,12 +1731,13 @@ module alpha(
     .io_in_b  (_GEN_1 ? _mult_1_io_out_s : 32'h0),
     .io_out_s (_adder_io_out_s)
   );
-  FP_sqrt_32_15 sqrt (
-    .clock    (clock),
-    .reset    (reset),
-    .io_in_en (_GEN_2),
-    .io_in_a  (_GEN_2 ? _adder_io_out_s : 32'h0),
-    .io_out_s (_sqrt_io_out_s)
+  FP_sqrt_32_15_15 sqrt (
+    .clock        (clock),
+    .reset        (reset),
+    .io_out_ready (_GEN_2),
+    .io_in_valid  (_GEN_2),
+    .io_in_a      (_GEN_2 ? _adder_io_out_s : 32'h0),
+    .io_out_s     (_sqrt_io_out_s)
   );
   FP_divider_32_10 divider_0 (
     .clock    (clock),
@@ -1797,7 +1898,7 @@ module tk_gen(
   assign io_out_s = out_s_reg;
 endmodule
 
-module tsqr_outer_loop(
+module tsqr_outer_loop2(
   input         clock,
                 reset,
   input  [63:0] io_xk_in_0,
@@ -2130,9 +2231,10 @@ module tsqr_outer_loop(
   wire [63:0] _GEN = io_in_en ? io_xk_in_0 : 64'h0;
   wire [63:0] _GEN_0 = io_in_en ? io_xk_in_1 : 64'h0;
   wire        _GEN_1 = counter > 32'h31;
-  wire        _GEN_2 = counter > 32'h40;
-  wire        _GEN_3 = counter > 32'h7A;
-  wire        _GEN_4 = counter > 32'h87;
+  wire        _GEN_2 = io_in_en & _GEN_1;
+  wire        _GEN_3 = counter > 32'h40;
+  wire        _GEN_4 = counter > 32'h7A;
+  wire        _GEN_5 = counter > 32'h87;
   reg  [63:0] alpha_reg;
   reg  [31:0] tk_reg;
   always @(posedge clock) begin
@@ -2482,41 +2584,42 @@ module tsqr_outer_loop(
     .io_out_real      (_eu_norm_dot_io_out_real),
     .io_out_imag      (/* unused */)
   );
-  alpha alpha_gen (
+  alpha2 alpha_gen (
     .clock            (clock),
     .reset            (reset),
-    .io_in_x0         (_GEN_2 ? shifted_x0 : 64'h0),
-    .io_in_eu_norm    (_GEN_2 ? _sqrt_io_out_s : 32'h0),
-    .io_in_en         (_GEN_2),
-    .io_counter_reset (_GEN_2 & io_counter_reset),
+    .io_in_x0         (_GEN_3 ? shifted_x0 : 64'h0),
+    .io_in_eu_norm    (_GEN_3 ? _sqrt_io_out_s : 32'h0),
+    .io_in_en         (_GEN_3),
+    .io_counter_reset (_GEN_3 & io_counter_reset),
     .io_out_s         (_alpha_gen_io_out_s)
   );
   vk_gen vk_gen (
     .clock            (clock),
     .reset            (reset),
-    .io_xk_in_0       (_GEN_3 ? shifted_xk_0_r_122 : 64'h0),
-    .io_xk_in_1       (_GEN_3 ? shifted_xk_1_r_122 : 64'h0),
-    .io_alpha_in      (_GEN_3 ? _alpha_gen_io_out_s : 64'h0),
-    .io_in_en         (_GEN_3),
-    .io_counter_reset (_GEN_3 & io_counter_reset),
+    .io_xk_in_0       (_GEN_4 ? shifted_xk_0_r_122 : 64'h0),
+    .io_xk_in_1       (_GEN_4 ? shifted_xk_1_r_122 : 64'h0),
+    .io_alpha_in      (_GEN_4 ? _alpha_gen_io_out_s : 64'h0),
+    .io_in_en         (_GEN_4),
+    .io_counter_reset (_GEN_4 & io_counter_reset),
     .io_out_s_0       (_vk_gen_io_out_s_0),
     .io_out_s_1       (_vk_gen_io_out_s_1)
   );
   tk_gen tk_gen (
     .clock            (clock),
     .reset            (reset),
-    .io_vk_in_0       (_GEN_4 ? _vk_gen_io_out_s_0 : 64'h0),
-    .io_vk_in_1       (_GEN_4 ? _vk_gen_io_out_s_1 : 64'h0),
-    .io_in_en         (_GEN_4),
-    .io_counter_reset (_GEN_4 & io_counter_reset),
+    .io_vk_in_0       (_GEN_5 ? _vk_gen_io_out_s_0 : 64'h0),
+    .io_vk_in_1       (_GEN_5 ? _vk_gen_io_out_s_1 : 64'h0),
+    .io_in_en         (_GEN_5),
+    .io_counter_reset (_GEN_5 & io_counter_reset),
     .io_out_s         (_tk_gen_io_out_s)
   );
-  FP_sqrt_32_15 sqrt (
-    .clock    (clock),
-    .reset    (reset),
-    .io_in_en (io_in_en & _GEN_1),
-    .io_in_a  (io_in_en & _GEN_1 ? _eu_norm_dot_io_out_real : 32'h0),
-    .io_out_s (_sqrt_io_out_s)
+  FP_sqrt_32_15_15 sqrt (
+    .clock        (clock),
+    .reset        (reset),
+    .io_out_ready (_GEN_2),
+    .io_in_valid  (_GEN_2),
+    .io_in_a      (io_in_en & _GEN_1 ? _eu_norm_dot_io_out_real : 32'h0),
+    .io_out_s     (_sqrt_io_out_s)
   );
   assign io_alpha_out = alpha_reg;
   assign io_out_tk = tk_reg;
@@ -3271,7 +3374,7 @@ module tsqr_topmodule(
   wire [31:0] _outerloop_io_out_tk;
   wire        _outerloop_io_out_valid;
   wire [63:0] _dm0_io_doutb_0;
-  wire [63:0] _tri__io_doutb_0;
+  wire [63:0] _tri_io_doutb_0;
   reg  [31:0] columns_left;
   reg         tk_done_reg;
   reg         innerloop_enable;
@@ -3379,7 +3482,7 @@ module tsqr_topmodule(
     read_valid_1 <= tri_enb | dm0_enb;
     read_counter_1 <= counter3;
   end // always @(posedge)
-  syn_ram tri_ (
+  syn_ram tri_0 (
     .clock      (clock),
     .io_ena     (tri_wea),
     .io_enb     (tri_enb),
@@ -3394,7 +3497,7 @@ module tsqr_topmodule(
                   : _GEN_2)
          : 2'h0),
     .io_dina_0  (_GEN_22 & (_GEN_5 ? _GEN_21 : _GEN_23) ? _innerloop_io_out_s_0 : 64'h0),
-    .io_doutb_0 (_tri__io_doutb_0)
+    .io_doutb_0 (_tri_io_doutb_0)
   );
   syn_ram dm0 (
     .clock      (clock),
@@ -3421,14 +3524,14 @@ module tsqr_topmodule(
          : 64'h0),
     .io_doutb_0 (_dm0_io_doutb_0)
   );
-  tsqr_outer_loop outerloop (
+  tsqr_outer_loop2 outerloop (
     .clock            (clock),
     .reset            (reset),
     .io_xk_in_0
       (_GEN
          ? (c2_done_reg
-              ? (read_valid_1 ? (_GEN_26 ? _tri__io_doutb_0 : _dm0_io_doutb_0) : 64'h0)
-              : _GEN_0 ? _tri__io_doutb_0 : 64'h0)
+              ? (read_valid_1 ? (_GEN_26 ? _tri_io_doutb_0 : _dm0_io_doutb_0) : 64'h0)
+              : _GEN_0 ? _tri_io_doutb_0 : 64'h0)
          : 64'h0),
     .io_xk_in_1
       (_GEN & (c2_done_reg ? read_valid_1 & _GEN_26 : _GEN_0) ? _dm0_io_doutb_0 : 64'h0),
@@ -3444,11 +3547,11 @@ module tsqr_topmodule(
     .io_xk_in_0
       (_GEN_11
          ? (_GEN_5
-              ? ((|(read_counter[31:2])) | ~read_valid ? 64'h0 : _tri__io_doutb_0)
+              ? ((|(read_counter[31:2])) | ~read_valid ? 64'h0 : _tri_io_doutb_0)
               : _GEN_14 | ~(read_valid & _GEN_8)
                   ? 64'h0
                   : _GEN_12
-                      ? _tri__io_doutb_0
+                      ? _tri_io_doutb_0
                       : read_counter == 32'h1 ? _dm0_io_doutb_0 : 64'h0)
          : 64'h0),
     .io_xk_in_1
@@ -3470,6 +3573,6 @@ module tsqr_topmodule(
   assign io_tsqr_fi = tsqr_finished;
   assign io_mem0_fi = io_mem0_fi_0;
   assign io_mem1_fi = 1'h0;
-  assign io_r_0 = _GEN ? _tri__io_doutb_0 : 64'h0;
+  assign io_r_0 = _GEN ? _tri_io_doutb_0 : 64'h0;
 endmodule
 

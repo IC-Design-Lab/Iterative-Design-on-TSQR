@@ -38,9 +38,9 @@ vsim -voptargs=+acc=npr work.tsqr_st2_tb -t 1ns
 #add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/clock
 #add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/reset  
 add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/*
-add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/tri_/*
+add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/tri_0/*
 add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/dm0/*
-add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/tri_/mem_0_ext/Memory
+add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/tri_0/mem_0_ext/Memory
 add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/outerloop/*
 add wave -noupdate -format logic -hexadecimal tsqr_st2_tb/u_tsqr_topmodule/innerloop/*
 

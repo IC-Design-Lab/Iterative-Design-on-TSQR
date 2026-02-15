@@ -45,7 +45,7 @@ initial begin
 $display("=== The maxix factoriation Starts! (%d ns) ====", $time);
 
   `ifdef ST2_RANDOM_TEST_4X2
-     $readmemh("../golden/sc_st2_random_test_4x2/r_buffer.txt" , u_tsqr_topmodule.tri_.mem_0_ext.Memory);
+     $readmemh("../golden/sc_st2_random_test_4x2/r_buffer.txt" , u_tsqr_topmodule.tri_0.mem_0_ext.Memory);
      $readmemh("../golden/sc_st2_random_test_4x2/m0_buffer.txt" , u_tsqr_topmodule.dm0.mem_0_ext.Memory);
 
 

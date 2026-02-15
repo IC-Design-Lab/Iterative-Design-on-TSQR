@@ -22,3 +22,13 @@ object main extends App {
     )
   )
 }
+
+object main2 extends App {
+  (new ChiselStage).execute(
+    Array("--target", "systemverilog", "--target-dir", "verification/dut"),
+    Seq(ChiselGeneratorAnnotation(() => new tsqr_topmodule2(64, 1, 2, 4, 2, 10, 13, 10, 15, 4)),
+      FirtoolOption("--disable-all-randomization"),
+      FirtoolOption("-strip-debug-info")
+    )
+  )
+}
